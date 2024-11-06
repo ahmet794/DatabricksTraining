@@ -97,11 +97,24 @@
 
 -- COMMAND ----------
 
--- CREATE OR REPLACE TEMP VIEW events_pivot
--- <FILL_IN>
--- ("cart", "pillows", "login", "main", "careers", "guest", "faq", "down", "warranty", "finalize", 
--- "register", "shipping_info", "checkout", "mattresses", "add_item", "press", "email_coupon", 
--- "cc_info", "foam", "reviews", "original", "delivery", "premium")
+SELECT * FROM events
+
+-- COMMAND ----------
+
+CREATE OR REPLACE TEMP VIEW events_pivot AS (
+  SELECT * FROM (
+    SELECT user_id AS user, event_name
+    FROM events
+  )
+  PIVOT (
+    COUNT(*) 
+    FOR event_name IN (
+      "cart", "pillows", "login", "main", "careers", "guest", "faq", "down", "warranty", "finalize", 
+      "register", "shipping_info", "checkout", "mattresses", "add_item", "press", "email_coupon", 
+      "cc_info", "foam", "reviews", "original", "delivery", "premium"
+    )
+  )
+)
 
 -- COMMAND ----------
 
@@ -119,10 +132,12 @@
 -- COMMAND ----------
 
 -- MAGIC %python
--- MAGIC # TODO
--- MAGIC # (spark.read
--- MAGIC #     <FILL_IN>
--- MAGIC #     .createOrReplaceTempView("events_pivot"))
+-- MAGIC (spark.read.table("events")
+-- MAGIC     .groupBy("user_id")
+-- MAGIC     .pivot("event_name")
+-- MAGIC     .count()
+-- MAGIC     .withColumnRenamed("user_id", "user")
+-- MAGIC     .createOrReplaceTempView("events_pivot"))
 
 -- COMMAND ----------
 
@@ -145,6 +160,7 @@
 -- MAGIC ## Join event counts and transactions for all users
 -- MAGIC
 -- MAGIC Next, join **`events_pivot`** with **`transactions`** to create the table **`clickpaths`**. This table should have the same event name columns from the **`events_pivot`** table created above, followed by columns from the **`transactions`** table, as shown below.
+-- MAGIC
 -- MAGIC
 -- MAGIC | field | type | 
 -- MAGIC | --- | --- | 
@@ -178,8 +194,16 @@
 
 -- COMMAND ----------
 
--- CREATE OR REPLACE TEMP VIEW clickpaths AS
--- <FILL_IN>
+SELECT * FROM transactions
+
+-- COMMAND ----------
+
+CREATE OR REPLACE TEMP VIEW clickpaths AS
+SELECT * FROM events_pivot a
+INNER JOIN transactions b
+ON a.user = b.user_id;
+
+SELECT * FROM clickpaths;
 
 -- COMMAND ----------
 
@@ -196,10 +220,13 @@
 -- COMMAND ----------
 
 -- MAGIC %python
--- MAGIC # TODO
--- MAGIC # (spark.read
--- MAGIC #     <FILL_IN>
--- MAGIC #     .createOrReplaceTempView("clickpaths"))
+-- MAGIC from pyspark.sql.functions import col
+-- MAGIC (spark.read.table("events_pivot")
+-- MAGIC   .join(spark.table("transactions"), col("events_pivot.user")==col("transactions.user_id"))
+-- MAGIC      .createOrReplaceTempView("clickpaths"))
+-- MAGIC
+-- MAGIC clickpathsDF = spark.read.table("clickpaths")
+-- MAGIC display(clickpathsDF)
 
 -- COMMAND ----------
 
