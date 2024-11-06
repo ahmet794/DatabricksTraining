@@ -108,10 +108,14 @@ FROM sales
 
 -- COMMAND ----------
 
--- CREATE OR REPLACE TABLE sales_product_flags AS
--- <FILL_IN>
--- EXISTS <FILL_IN>.item_name LIKE "%Mattress"
--- EXISTS <FILL_IN>.item_name LIKE "%Pillow"
+CREATE OR REPLACE TABLE sales_product_flags AS
+SELECT 
+    items,
+    EXISTS (items, i-> i.item_name LIKE "%Mattress") AS mattress,
+    EXISTS (items, i-> i.item_name LIKE "%Pillow") AS pillow
+FROM sales;
+
+SELECT * FROM sales_product_flags
 
 -- COMMAND ----------
 

@@ -74,7 +74,16 @@
 
 -- COMMAND ----------
 
--- <FILL_IN> "${DA.paths.kafka_events}"
+CREATE OR REPLACE TABLE events_json
+AS
+SELECT 
+  CAST(key AS BINARY) AS key,
+  CAST(offset AS BIGINT) AS offset,
+  CAST(partition AS INT) AS partition,
+  CAST(timestamp AS BIGINT) AS timestamp,
+  CAST(topic AS STRING) AS topic,
+  CAST(value AS BINARY) AS value
+FROM json.`${DA.paths.kafka_events}`
 
 -- COMMAND ----------
 
