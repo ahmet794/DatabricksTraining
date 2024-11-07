@@ -69,6 +69,7 @@
 -- COMMAND ----------
 
 -- <FILL_IN>
+CREATE OR REPLACE TABLE events_raw (key BINARY, offset LONG, partition INT, timestamp LONG, topic STRING, value BINARY)
 
 -- COMMAND ----------
 
@@ -109,6 +110,8 @@
 -- COMMAND ----------
 
 -- <FILL_IN>
+CREATE OR REPLACE TABLE events_raw AS 
+SELECT * FROM events_json
 
 -- COMMAND ----------
 
@@ -121,6 +124,7 @@
 -- COMMAND ----------
 
 -- <FILL_IN>
+SELECT * FROM events_raw
 
 -- COMMAND ----------
 
@@ -162,7 +166,8 @@
 
 -- COMMAND ----------
 
--- <FILL_IN> ${da.paths.datasets}/ecommerce/raw/item-lookup
+CREATE TABLE item_lookup AS
+SELECT * FROM parquet.`dbfs:/mnt/dbacademy-datasets/data-engineer-learning-path/v04/ecommerce/raw/item-lookup`
 
 -- COMMAND ----------
 
