@@ -61,6 +61,7 @@ import pyspark.sql.functions as F
 
 source = spark.conf.get("source")
 
+@dlt.table
 def status_bronze():
     return (
         spark.readStream
@@ -89,7 +90,7 @@ def status_silver():
 @dlt.table
 def email_updates():
     return (
-        spark.read("status_silver").alias("a")
+        dlt.read("status_silver").alias("a")
             .join(
                 dlt.read("subscribed_order_emails_v").alias("b"), 
                 on="order_id"
